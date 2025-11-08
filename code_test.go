@@ -650,3 +650,31 @@ func TestConcurrentErrorCreation(t *testing.T) {
 		<-done
 	}
 }
+
+func TestNew(t *testing.T) {
+	err := New(&ErrCode{
+		Code:       "TEST_CODE",
+		Message:    "This is a test error",
+		HttpStatus: http.StatusBadRequest,
+		Type:       ErrTypeBusiness,
+	})
+	t.Logf("Error: %+v", err)
+	t.Logf("Error Code: %s", err.Code())
+	t.Logf("Error Message: %s", err.Message())
+	t.Logf("Error HTTP Status: %d", err.HttpStatus())
+	t.Logf("Error Type: %s", err.Type())
+}
+
+func TestNewf(t *testing.T) {
+	err := Newf(&ErrCode{
+		Code:       "TEST_CODE",
+		Message:    "This is a test error",
+		HttpStatus: http.StatusBadRequest,
+		Type:       ErrTypeBusiness,
+	}, "This is a formatted error: %s", "test")
+	t.Logf("Error: %+v", err)
+	t.Logf("Error Code: %s", err.Code())
+	t.Logf("Error Message: %s", err.Message())
+	t.Logf("Error HTTP Status: %d", err.HttpStatus())
+	t.Logf("Error Type: %s", err.Type())
+}
