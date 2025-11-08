@@ -270,3 +270,5 @@ func InternalErrorWithMetadata(metadata map[string]any, format string, args ...a
 	return Newf(ErrInternal, format, args...).
 		WithMetadataMap(metadata)
 }
+
+// TODO 使用strings.Builder来实现字符串操作的性能优化
