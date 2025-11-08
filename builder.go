@@ -63,7 +63,9 @@ func (b *Builder) Build() Error {
 		errType:    b.code.Type,
 		timestamp:  time.Now().UTC(),
 		stackTrace: captureStackTrace(2),
+		cause:      b.cause,
+		metadata:   b.metadata,
 	}
-	
+
 	return err
 }
