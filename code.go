@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -63,12 +64,6 @@ var (
 		HttpStatus: http.StatusBadRequest,
 		Type:       ErrTypeBusiness,
 	}
-	ErrValidation = &ErrCode{
-		Code:       ErrTypeValidation.String(),
-		Message:    "Validation error",
-		HttpStatus: http.StatusBadRequest,
-		Type:       ErrTypeValidation,
-	}
 	ErrRateLimit = &ErrCode{
 		Code:       "RATE_LIMIT",
 		Message:    "Rate limit exceeded",
@@ -96,6 +91,12 @@ var (
 		HttpStatus: http.StatusConflict,
 		Type:       ErrTypeBusiness,
 	}
+	BusinessError = &ErrCode{
+		Code:       "BUSINESS_ERROR",
+		Message:    "Business error",
+		HttpStatus: http.StatusInternalServerError,
+		Type:       ErrTypeBusiness,
+	}
 )
 
 func New(code *ErrCode) Error {
@@ -106,8 +107,6 @@ func New(code *ErrCode) Error {
 		errType:    code.Type,
 		timestamp:  time.Now().UTC(),
 		stackTrace: getSimplifiedStackTrace(2, 6),
-		cause:      nil,
-		metadata:   nil,
 	}
 }
 
@@ -126,7 +125,8 @@ func Wrap(err error, code *ErrCode) Error {
 	if err == nil {
 		return nil
 	}
-	if customErr, ok := err.(Error); ok {
+	var customErr Error
+	if errors.As(err, &customErr) {
 		return customErr
 	}
 
@@ -141,26 +141,132 @@ func Wrap(err error, code *ErrCode) Error {
 	}
 }
 
-func UsernameExistedError(username string) Error {
-	return Newf(ErrUsernameExisted,
-		"Username %s already exists", username).
-		WithMetadata("username", username)
+func Wrapf(format string, err error, code *ErrCode) Error {
+	if err == nil {
+		return nil
+	}
+	var customErr Error
+	if errors.As(err, &customErr) {
+		return customErr
+	}
+
+	return &ErrorImpl{
+		code:       code.Code,
+		message:    fmt.Sprintf(format, code.Message),
+		httpStatus: code.HttpStatus,
+		errType:    code.Type,
+		timestamp:  time.Now().UTC(),
+		stackTrace: getSimplifiedStackTrace(2, 6),
+		cause:      err,
+	}
 }
 
-func PhoneExistedError(phone string) Error {
-	return Newf(ErrPhoneExisted,
-		"Phone %s already exists", phone).
-		WithMetadata("phone", phone)
+// ==================== 基础错误函数 ====================
+//
+
+// ResourceConflictError 创建资源冲突错误
+func ResourceConflictError() Error {
+	return New(ErrConflict)
 }
 
-func EmailExistedError(email string) Error {
-	return Newf(ErrEmailExisted,
-		"Email %s already exists", email).
-		WithMetadata("email", email)
+// ParameterValidationError 创建参数验证错误
+func ParameterValidationError() error {
+	return New(ErrBadRequest)
 }
 
-func ValidationError(field, reason string) error {
-	return New(ErrValidation).
-		WithMetadata("field", field).
-		WithMetadata("reason", reason)
+// ResourceNotFoundError 创建资源未找到错误
+func ResourceNotFoundError() Error {
+	return New(ErrNotFound)
+}
+
+// ForbiddenError 基础禁止访问错误
+func ForbiddenError() Error {
+	return New(ErrForbidden)
+}
+
+// UnAuthorizedError 创建未认证的错误
+func UnAuthorizedError() Error {
+	return New(ErrUnauthorized)
+}
+
+// TimeoutError 创建超时错误
+func TimeoutError() Error {
+	return New(ErrTimeout)
+}
+
+// InternalError 创建内部错误
+func InternalError() Error {
+	return New(ErrInternal)
+}
+
+// ==================== 格式化的错误函数 ====================
+//
+
+// UnAuthorizedErrorf 创建未认证错误
+func UnAuthorizedErrorf(format string, args ...any) Error {
+	return Newf(ErrUnauthorized, format, args...)
+}
+
+// ResourceConflictErrorf 创建资源冲突错误
+func ResourceConflictErrorf(format string, args ...any) Error {
+	return Newf(ErrConflict, format, args...)
+}
+
+// ParameterValidationErrorf 创建参数验证错误
+func ParameterValidationErrorf(format string, args ...any) Error {
+	return Newf(ErrBadRequest, format, args...)
+}
+
+// TimeoutErrorf 创建超时的错误
+func TimeoutErrorf(format string, args ...any) Error {
+	return Newf(ErrTimeout, format, args...)
+}
+
+// ForbiddenErrorf 创建禁止访问错误
+func ForbiddenErrorf(format string, args ...any) Error {
+	return Newf(ErrForbidden, format, args...)
+}
+
+// InternalErrorf 创建内部错误
+func InternalErrorf(format string, args ...any) Error {
+	return Newf(ErrInternal, format, args...)
+}
+
+// ==================== 带元数据的错误函数 ====================
+//
+
+// UnAuthorizedErrorWithMetadata 创建带元数据的未认证错误
+func UnAuthorizedErrorWithMetadata(metadata map[string]any, format string, args ...any) Error {
+	return Newf(ErrUnauthorized, format, args...).
+		WithMetadataMap(metadata)
+}
+
+// ResourceConflictErrorWithMetadata 创建带元数据的资源冲突错误
+func ResourceConflictErrorWithMetadata(metadata map[string]any, format string, args ...any) Error {
+	return Newf(ErrConflict, format, args...).
+		WithMetadataMap(metadata)
+}
+
+// ParameterValidationErrorWithMetadata 创建带元数据的参数验证错误
+func ParameterValidationErrorWithMetadata(metadata map[string]any, format string, args ...any) Error {
+	return Newf(ErrBadRequest, format, args...).
+		WithMetadataMap(metadata)
+}
+
+// TimeoutErrorWithMetadata 创建带元数据的超时错误
+func TimeoutErrorWithMetadata(metadata map[string]any, format string, args ...any) Error {
+	return Newf(ErrTimeout, format, args...).
+		WithMetadataMap(metadata)
+}
+
+// ForbiddenErrorWithMetadata 创建带元数据的禁止访问错误
+func ForbiddenErrorWithMetadata(metadata map[string]any, format string, args ...any) Error {
+	return Newf(ErrForbidden, format, args...).
+		WithMetadataMap(metadata)
+}
+
+// InternalErrorWithMetadata 创建带元数据的内部错误
+func InternalErrorWithMetadata(metadata map[string]any, format string, args ...any) Error {
+	return Newf(ErrInternal, format, args...).
+		WithMetadataMap(metadata)
 }

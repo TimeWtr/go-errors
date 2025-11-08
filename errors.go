@@ -17,7 +17,7 @@ type Error interface {
 	Metadata() map[string]any
 	WithMetadata(key string, val any) Error
 	WithMetadataMap(metadata map[string]any) Error
-	Unwarp() error
+	Unwrap() error
 }
 
 type ErrType string
@@ -91,7 +91,7 @@ func (e *ErrorImpl) StackTrace() string {
 	return e.stackTrace
 }
 
-func (e *ErrorImpl) Unwarp() error {
+func (e *ErrorImpl) Unwrap() error {
 	return e.cause
 }
 
