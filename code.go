@@ -15,85 +15,94 @@ type ErrCode struct {
 	Type       ErrType
 }
 
+const (
+	ErrInternalMessage        = "Internal Server Error"
+	ErrTimeoutMessage         = "Request Timeout"
+	ErrNotFoundMessage        = "Not Found"
+	ErrBadRequestMessage      = "Bad Request"
+	ErrUnauthorizedMessage    = "Unauthorized"
+	ErrForbiddenMessage       = "Forbidden"
+	ErrConflictMessage        = "Resource Conflict"
+	ErrRateLimitMessage       = "Rate Limit Exceeded"
+	ErrUsernameExistedMessage = "Username already exists"
+	ErrEmailExistedMessage    = "Email already exists"
+	ErrPhoneExistedMessage    = "Phone already exists"
+	ErrBusinessMessage        = "Business error"
+)
+
 var (
 	ErrInternal = &ErrCode{
 		Code:       ErrTypeInternal.String(),
-		Message:    "Internal Server Error",
+		Message:    ErrInternalMessage,
 		HttpStatus: http.StatusInternalServerError,
 		Type:       ErrTypeInternal,
 	}
 	ErrTimeout = &ErrCode{
 		Code:       ErrTypeTimeout.String(),
-		Message:    "Request Timeout",
+		Message:    ErrTimeoutMessage,
 		HttpStatus: http.StatusRequestTimeout,
 		Type:       ErrTypeTimeout,
 	}
 	ErrNotFound = &ErrCode{
 		Code:       ErrTypeNotFound.String(),
-		Message:    "Not Found",
+		Message:    ErrNotFoundMessage,
 		HttpStatus: http.StatusNotFound,
 		Type:       ErrTypeNotFound,
 	}
 	ErrBadRequest = &ErrCode{
 		Code:       ErrTypeBadRequest.String(),
-		Message:    "Bad Request",
+		Message:    ErrBadRequestMessage,
 		HttpStatus: http.StatusBadRequest,
 		Type:       ErrTypeBadRequest,
 	}
 	ErrUnauthorized = &ErrCode{
 		Code:       ErrTypeUnauthorized.String(),
-		Message:    "Unauthorized",
+		Message:    ErrUnauthorizedMessage,
 		HttpStatus: http.StatusUnauthorized,
 		Type:       ErrTypeUnauthorized,
 	}
 	ErrForbidden = &ErrCode{
 		Code:       ErrTypeForbidden.String(),
-		Message:    "Forbidden",
+		Message:    ErrForbiddenMessage,
 		HttpStatus: http.StatusForbidden,
 		Type:       ErrTypeForbidden,
 	}
 	ErrConflict = &ErrCode{
 		Code:       ErrTypeConflict.String(),
-		Message:    "Resource Conflict",
+		Message:    ErrConflictMessage,
 		HttpStatus: http.StatusConflict,
 		Type:       ErrTypeConflict,
 	}
-	ErrBusiness = &ErrCode{
-		Code:       ErrTypeBusiness.String(),
-		Message:    "Business rule violation",
-		HttpStatus: http.StatusBadRequest,
-		Type:       ErrTypeBusiness,
-	}
 	ErrRateLimit = &ErrCode{
-		Code:       "RATE_LIMIT",
-		Message:    "Rate limit exceeded",
+		Code:       ErrTypeRateLimit.String(),
+		Message:    ErrRateLimitMessage,
 		HttpStatus: http.StatusTooManyRequests,
-		Type:       ErrTypeBusiness,
+		Type:       ErrTypeRateLimit,
 	}
 )
 
 var (
 	ErrUsernameExisted = &ErrCode{
-		Code:       "USERNAME_EXISTED",
-		Message:    "Username already exists",
+		Code:       ErrTypeConflict.String(),
+		Message:    ErrUsernameExistedMessage,
 		HttpStatus: http.StatusConflict,
-		Type:       ErrTypeBusiness,
+		Type:       ErrTypeConflict,
 	}
 	ErrEmailExisted = &ErrCode{
-		Code:       "EMAIL_EXISTED",
-		Message:    "Email already exists",
+		Code:       ErrTypeConflict.String(),
+		Message:    ErrEmailExistedMessage,
 		HttpStatus: http.StatusConflict,
-		Type:       ErrTypeBusiness,
+		Type:       ErrTypeConflict,
 	}
 	ErrPhoneExisted = &ErrCode{
-		Code:       "PHONE_EXISTED",
-		Message:    "Phone already exists",
+		Code:       ErrTypeConflict.String(),
+		Message:    ErrPhoneExistedMessage,
 		HttpStatus: http.StatusConflict,
-		Type:       ErrTypeBusiness,
+		Type:       ErrTypeConflict,
 	}
 	BusinessError = &ErrCode{
-		Code:       "BUSINESS_ERROR",
-		Message:    "Business error",
+		Code:       ErrTypeBusiness.String(),
+		Message:    ErrBusinessMessage,
 		HttpStatus: http.StatusInternalServerError,
 		Type:       ErrTypeBusiness,
 	}
@@ -109,13 +118,13 @@ var (
 //
 //	Error: 新创建的错误实例
 func n(enableStack bool, code *ErrCode) Error {
-	impl := &ErrorImpl{
-		code:       code.Code,
-		message:    code.Message,
-		httpStatus: code.HttpStatus,
-		errType:    code.Type,
-		timestamp:  time.Now().UTC(),
-	}
+	impl := acquireError()
+	impl.code = code.Code
+	impl.message = code.Message
+	impl.httpStatus = code.HttpStatus
+	impl.errType = code.Type
+	impl.timestamp = time.Now().UTC()
+
 	if enableStack {
 		impl.stackTrace = getSimplifiedStackTrace(2, 6)
 	}
@@ -148,13 +157,12 @@ func FastNew(code *ErrCode) Error {
 }
 
 func nf(enableStack bool, code *ErrCode, format string, args ...any) Error {
-	impl := &ErrorImpl{
-		code:       code.Code,
-		message:    fmt.Sprintf(format, args...),
-		httpStatus: code.HttpStatus,
-		errType:    code.Type,
-		timestamp:  time.Now().UTC(),
-	}
+	impl := acquireError()
+	impl.code = code.Code
+	impl.message = fmt.Sprintf(format, args...)
+	impl.httpStatus = code.HttpStatus
+	impl.errType = code.Type
+	impl.timestamp = time.Now().UTC()
 
 	if enableStack {
 		impl.stackTrace = getSimplifiedStackTrace(2, 6)

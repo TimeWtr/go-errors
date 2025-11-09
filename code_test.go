@@ -32,42 +32,42 @@ func TestBasicErrorFunctions(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name:       "ResourceConflictError",
+			name:       "资源冲突错误",
 			errFunc:    ResourceConflictError,
 			wantCode:   ErrTypeConflict.String(),
 			wantType:   ErrTypeConflict,
 			wantStatus: http.StatusConflict,
 		},
 		{
-			name:       "ResourceNotFoundError",
+			name:       "资源未找到错误",
 			errFunc:    ResourceNotFoundError,
 			wantCode:   ErrTypeNotFound.String(),
 			wantType:   ErrTypeNotFound,
 			wantStatus: http.StatusNotFound,
 		},
 		{
-			name:       "ForbiddenError",
+			name:       "禁止访问错误",
 			errFunc:    ForbiddenError,
 			wantCode:   ErrTypeForbidden.String(),
 			wantType:   ErrTypeForbidden,
 			wantStatus: http.StatusForbidden,
 		},
 		{
-			name:       "UnAuthorizedError",
+			name:       "未授权错误",
 			errFunc:    UnAuthorizedError,
 			wantCode:   ErrTypeUnauthorized.String(),
 			wantType:   ErrTypeUnauthorized,
 			wantStatus: http.StatusUnauthorized,
 		},
 		{
-			name:       "TimeoutError",
+			name:       "超时错误",
 			errFunc:    TimeoutError,
 			wantCode:   ErrTypeTimeout.String(),
 			wantType:   ErrTypeTimeout,
 			wantStatus: http.StatusRequestTimeout,
 		},
 		{
-			name:       "InternalError",
+			name:       "内部错误",
 			errFunc:    InternalError,
 			wantCode:   ErrTypeInternal.String(),
 			wantType:   ErrTypeInternal,
@@ -126,42 +126,42 @@ func TestBasicErrorFunctionsNoStack(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name:       "ResourceConflictError",
+			name:       "资源冲突错误",
 			errFunc:    ResourceConflictErrorNoStack,
 			wantCode:   ErrTypeConflict.String(),
 			wantType:   ErrTypeConflict,
 			wantStatus: http.StatusConflict,
 		},
 		{
-			name:       "ResourceNotFoundError",
+			name:       "资源未找到错误",
 			errFunc:    ResourceNotFoundErrorNoStack,
 			wantCode:   ErrTypeNotFound.String(),
 			wantType:   ErrTypeNotFound,
 			wantStatus: http.StatusNotFound,
 		},
 		{
-			name:       "ForbiddenError",
+			name:       "禁止访问错误",
 			errFunc:    ForbiddenErrorNoStack,
 			wantCode:   ErrTypeForbidden.String(),
 			wantType:   ErrTypeForbidden,
 			wantStatus: http.StatusForbidden,
 		},
 		{
-			name:       "UnAuthorizedError",
+			name:       "未授权错误",
 			errFunc:    UnAuthorizedErrorNoStack,
 			wantCode:   ErrTypeUnauthorized.String(),
 			wantType:   ErrTypeUnauthorized,
 			wantStatus: http.StatusUnauthorized,
 		},
 		{
-			name:       "TimeoutError",
+			name:       "超时错误",
 			errFunc:    TimeoutErrorNoStack,
 			wantCode:   ErrTypeTimeout.String(),
 			wantType:   ErrTypeTimeout,
 			wantStatus: http.StatusRequestTimeout,
 		},
 		{
-			name:       "InternalError",
+			name:       "内部错误",
 			errFunc:    InternalErrorNoStack,
 			wantCode:   ErrTypeInternal.String(),
 			wantType:   ErrTypeInternal,
@@ -246,7 +246,7 @@ func TestFormattedErrorFunctions(t *testing.T) {
 		wantMessage string
 	}{
 		{
-			name:        "UnAuthorizedErrorf",
+			name:        "未授权格式化错误",
 			errFunc:     UnAuthorizedErrorf,
 			format:      "User %s token expired at %v",
 			args:        []any{"john_doe", tf},
@@ -255,7 +255,7 @@ func TestFormattedErrorFunctions(t *testing.T) {
 			wantMessage: fmt.Sprintf("User john_doe token expired at %s", tf),
 		},
 		{
-			name:        "ResourceConflictErrorf",
+			name:        "资源冲突格式化错误",
 			errFunc:     ResourceConflictErrorf,
 			format:      "Resource %s with ID %s already exists",
 			args:        []any{"user", "12345"},
@@ -264,7 +264,7 @@ func TestFormattedErrorFunctions(t *testing.T) {
 			wantMessage: "Resource user with ID 12345 already exists",
 		},
 		{
-			name:        "ParameterValidationErrorf",
+			name:        "参数验证格式化错误",
 			errFunc:     ParameterValidationErrorf,
 			format:      "Field %s validation failed: %s",
 			args:        []any{"email", "invalid format"},
@@ -273,7 +273,7 @@ func TestFormattedErrorFunctions(t *testing.T) {
 			wantMessage: "Field email validation failed: invalid format",
 		},
 		{
-			name:        "TimeoutErrorf",
+			name:        "超时格式化错误",
 			errFunc:     TimeoutErrorf,
 			format:      "Operation %s timed out after %v",
 			args:        []any{"database_query", 30 * time.Second},
@@ -282,7 +282,7 @@ func TestFormattedErrorFunctions(t *testing.T) {
 			wantMessage: "Operation database_query timed out after 30s",
 		},
 		{
-			name:        "ForbiddenErrorf",
+			name:        "禁止访问格式化错误",
 			errFunc:     ForbiddenErrorf,
 			format:      "User %s cannot access resource %s",
 			args:        []any{"user123", "document_456"},
@@ -291,7 +291,7 @@ func TestFormattedErrorFunctions(t *testing.T) {
 			wantMessage: "User user123 cannot access resource document_456",
 		},
 		{
-			name:        "InternalErrorf",
+			name:        "内部格式化错误",
 			errFunc:     InternalErrorf,
 			format:      "Failed to process %s: %v",
 			args:        []any{"request", "connection refused"},
@@ -339,7 +339,7 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 		wantMetadata map[string]any
 	}{
 		{
-			name:    "UnAuthorizedErrorWithMeta",
+			name:    "带元数据的未授权错误",
 			errFunc: UnAuthorizedErrorWithMeta,
 			metadata: map[string]any{
 				"user_id":    "user123",
@@ -358,7 +358,7 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "ResourceConflictErrorWithMeta",
+			name:    "带元数据的资源冲突错误",
 			errFunc: ResourceConflictErrorWithMeta,
 			metadata: map[string]any{
 				"resource_type": "user",
@@ -377,7 +377,7 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "ParameterValidationErrorWithMeta",
+			name:    "带元数据的参数验证错误",
 			errFunc: ParameterValidationErrorWithMeta,
 			metadata: map[string]any{
 				"field":  "email",
@@ -396,7 +396,7 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "TimeoutErrorWithMeta",
+			name:    "带元数据的超时错误",
 			errFunc: TimeoutErrorWithMeta,
 			metadata: map[string]any{
 				"operation": "database_query",
@@ -415,7 +415,7 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "ForbiddenErrorWithMeta",
+			name:    "带元数据的禁止访问错误",
 			errFunc: ForbiddenErrorWithMeta,
 			metadata: map[string]any{
 				"user_id":    "user123",
@@ -436,7 +436,7 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "InternalErrorWithMeta",
+			name:    "带元数据的内部错误",
 			errFunc: InternalErrorWithMeta,
 			metadata: map[string]any{
 				"component":   "database",
@@ -613,38 +613,38 @@ func TestPredefinedBusinessErrors(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name:       "ErrUsernameExisted",
+			name:       "用户名已存在错误",
 			err:        ErrUsernameExisted,
-			wantCode:   "USERNAME_EXISTED",
-			wantType:   ErrTypeBusiness,
+			wantCode:   ErrTypeConflict.String(),
+			wantType:   ErrTypeConflict,
 			wantStatus: http.StatusConflict,
 		},
 		{
-			name:       "ErrEmailExisted",
+			name:       "邮箱已存在错误",
 			err:        ErrEmailExisted,
-			wantCode:   "EMAIL_EXISTED",
-			wantType:   ErrTypeBusiness,
+			wantCode:   ErrTypeConflict.String(),
+			wantType:   ErrTypeConflict,
 			wantStatus: http.StatusConflict,
 		},
 		{
-			name:       "ErrPhoneExisted",
+			name:       "手机号已存在错误",
 			err:        ErrPhoneExisted,
-			wantCode:   "PHONE_EXISTED",
-			wantType:   ErrTypeBusiness,
+			wantCode:   ErrTypeConflict.String(),
+			wantType:   ErrTypeConflict,
 			wantStatus: http.StatusConflict,
 		},
 		{
-			name:       "BusinessError",
+			name:       "业务错误",
 			err:        BusinessError,
-			wantCode:   "BUSINESS_ERROR",
+			wantCode:   ErrTypeBusiness.String(),
 			wantType:   ErrTypeBusiness,
 			wantStatus: http.StatusInternalServerError,
 		},
 		{
-			name:       "ErrRateLimit",
+			name:       "限流错误",
 			err:        ErrRateLimit,
-			wantCode:   "RATE_LIMIT",
-			wantType:   ErrTypeBusiness,
+			wantCode:   ErrRateLimit.Code,
+			wantType:   ErrTypeRateLimit,
 			wantStatus: http.StatusTooManyRequests,
 		},
 	}
@@ -673,12 +673,12 @@ func TestNewfWithPredefinedErrors(t *testing.T) {
 	username := "testuser"
 	err := Newf(ErrUsernameExisted, "Username '%s' is already taken", username)
 
-	if err.Code() != "USERNAME_EXISTED" {
+	if err.Code() != ErrTypeConflict.String() {
 		t.Errorf("Code() = %v, want %v", err.Code(), "USERNAME_EXISTED")
 	}
 
-	if err.Type() != ErrTypeBusiness {
-		t.Errorf("Type() = %v, want %v", err.Type(), ErrTypeBusiness)
+	if err.Type() != ErrTypeConflict {
+		t.Errorf("Type() = %v, want %v", err.Type(), ErrTypeConflict)
 	}
 
 	if err.HttpStatus() != http.StatusConflict {
@@ -693,19 +693,19 @@ func TestNewfWithPredefinedErrors(t *testing.T) {
 
 // BenchmarkErrorCreation 性能测试
 func BenchmarkErrorCreation(b *testing.B) {
-	b.Run("New", func(b *testing.B) {
+	b.Run("新建错误", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = New(ErrInternal)
 		}
 	})
 
-	b.Run("Newf", func(b *testing.B) {
+	b.Run("新建格式化错误", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			_ = Newf(ErrInternal, "error with value: %d", i)
 		}
 	})
 
-	b.Run("Wrap", func(b *testing.B) {
+	b.Run("包装错误", func(b *testing.B) {
 		originalErr := fmt.Errorf("original error")
 		for i := 0; i < b.N; i++ {
 			_ = Wrap(originalErr, ErrInternal)
@@ -720,7 +720,7 @@ func TestConcurrentErrorCreation(t *testing.T) {
 
 	for i := 0; i < concurrency; i++ {
 		go func(index int) {
-			err := InternalErrorf("concurrent error %d", index)
+			err := InternalErrorf("并发错误 %d", index)
 
 			// 验证错误基本属性
 			if err.Code() != ErrTypeInternal.String() {
@@ -748,7 +748,7 @@ func TestConcurrentErrorCreationNoStack(t *testing.T) {
 
 	for i := 0; i < concurrency; i++ {
 		go func(index int) {
-			err := InternalErrorfNoStack("concurrent error %d", index)
+			err := InternalErrorfNoStack("并发错误 %d", index)
 
 			// 验证错误基本属性
 			if err.Code() != ErrTypeInternal.String() {
@@ -772,27 +772,27 @@ func TestConcurrentErrorCreationNoStack(t *testing.T) {
 func TestNew(t *testing.T) {
 	err := New(&ErrCode{
 		Code:       "TEST_CODE",
-		Message:    "This is a test error",
+		Message:    "这是一个测试错误",
 		HttpStatus: http.StatusBadRequest,
 		Type:       ErrTypeBusiness,
 	})
-	t.Logf("Error: %+v", err)
-	t.Logf("Error Code: %s", err.Code())
-	t.Logf("Error Message: %s", err.Message())
-	t.Logf("Error HTTP Status: %d", err.HttpStatus())
-	t.Logf("Error Type: %s", err.Type())
+	t.Logf("错误: %+v", err)
+	t.Logf("错误代码: %s", err.Code())
+	t.Logf("错误消息: %s", err.Message())
+	t.Logf("错误HTTP状态: %d", err.HttpStatus())
+	t.Logf("错误类型: %s", err.Type())
 }
 
 func TestNewf(t *testing.T) {
 	err := Newf(&ErrCode{
 		Code:       "TEST_CODE",
-		Message:    "This is a test error",
+		Message:    "这是一个测试错误",
 		HttpStatus: http.StatusBadRequest,
 		Type:       ErrTypeBusiness,
-	}, "This is a formatted error: %s", "test")
-	t.Logf("Error: %+v", err)
-	t.Logf("Error Code: %s", err.Code())
-	t.Logf("Error Message: %s", err.Message())
-	t.Logf("Error HTTP Status: %d", err.HttpStatus())
-	t.Logf("Error Type: %s", err.Type())
+	}, "这是一个格式化错误: %s", "测试")
+	t.Logf("错误: %+v", err)
+	t.Logf("错误代码: %s", err.Code())
+	t.Logf("错误消息: %s", err.Message())
+	t.Logf("错误HTTP状态: %d", err.HttpStatus())
+	t.Logf("错误类型: %s", err.Type())
 }
