@@ -311,7 +311,7 @@ func ResourceConflictError() Error {
 }
 
 // ParameterValidationError 创建参数验证错误
-func ParameterValidationError() error {
+func ParameterValidationError() Error {
 	return New(ErrBadRequest)
 }
 
@@ -349,7 +349,7 @@ func ResourceConflictErrorNoStack() Error {
 }
 
 // ParameterValidationErrorNoStack 创建参数验证错误
-func ParameterValidationErrorNoStack() error {
+func ParameterValidationErrorNoStack() Error {
 	return FastNew(ErrBadRequest)
 }
 
