@@ -12,12 +12,19 @@ type Builder struct {
 	cause error
 	// 元数据信息
 	metadata map[string]any
+	// 是否启用快速模式，快速模式不会捕获堆栈信息
+	fastMode bool
 }
 
 func NewBuilder() *Builder {
 	return &Builder{
 		metadata: map[string]any{},
 	}
+}
+
+func (b *Builder) WithFastMode() *Builder {
+	b.fastMode = true
+	return b
 }
 
 func (b *Builder) WithCode(code *ErrCode) *Builder {
@@ -56,16 +63,20 @@ func (b *Builder) Build() Error {
 		b.message = b.code.Message
 	}
 
-	err := &ErrorImpl{
+	impl := &ErrorImpl{
 		code:       b.code.Code,
 		message:    b.message,
 		httpStatus: b.code.HttpStatus,
 		errType:    b.code.Type,
 		timestamp:  time.Now().UTC(),
-		stackTrace: captureStackTrace(2),
 		cause:      b.cause,
 		metadata:   b.metadata,
 	}
 
-	return err
+	// 不开启快速模式，则记录堆栈信息
+	if !b.fastMode {
+		impl.stackTrace = captureStackTrace(2)
+	}
+
+	return impl
 }

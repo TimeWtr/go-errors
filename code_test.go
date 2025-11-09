@@ -116,6 +116,96 @@ func TestBasicErrorFunctions(t *testing.T) {
 	}
 }
 
+// TestBasicErrorFunctionsNoStack 测试基础错误函数，不带堆栈信息
+func TestBasicErrorFunctionsNoStack(t *testing.T) {
+	tests := []struct {
+		name       string
+		errFunc    func() Error
+		wantCode   string
+		wantType   ErrType
+		wantStatus int
+	}{
+		{
+			name:       "ResourceConflictError",
+			errFunc:    ResourceConflictErrorNoStack,
+			wantCode:   ErrTypeConflict.String(),
+			wantType:   ErrTypeConflict,
+			wantStatus: http.StatusConflict,
+		},
+		{
+			name:       "ResourceNotFoundError",
+			errFunc:    ResourceNotFoundErrorNoStack,
+			wantCode:   ErrTypeNotFound.String(),
+			wantType:   ErrTypeNotFound,
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name:       "ForbiddenError",
+			errFunc:    ForbiddenErrorNoStack,
+			wantCode:   ErrTypeForbidden.String(),
+			wantType:   ErrTypeForbidden,
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name:       "UnAuthorizedError",
+			errFunc:    UnAuthorizedErrorNoStack,
+			wantCode:   ErrTypeUnauthorized.String(),
+			wantType:   ErrTypeUnauthorized,
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:       "TimeoutError",
+			errFunc:    TimeoutErrorNoStack,
+			wantCode:   ErrTypeTimeout.String(),
+			wantType:   ErrTypeTimeout,
+			wantStatus: http.StatusRequestTimeout,
+		},
+		{
+			name:       "InternalError",
+			errFunc:    InternalErrorNoStack,
+			wantCode:   ErrTypeInternal.String(),
+			wantType:   ErrTypeInternal,
+			wantStatus: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.errFunc()
+
+			if err.Code() != tt.wantCode {
+				t.Errorf("Code() = %v, want %v", err.Code(), tt.wantCode)
+			}
+
+			if err.Type() != tt.wantType {
+				t.Errorf("Type() = %v, want %v", err.Type(), tt.wantType)
+			}
+
+			if err.HttpStatus() != tt.wantStatus {
+				t.Errorf("HttpStatus() = %v, want %v", err.HttpStatus(), tt.wantStatus)
+			}
+
+			if err.Message() == "" {
+				t.Error("Message() should not be empty")
+			}
+
+			if err.Timestamp().IsZero() {
+				t.Error("Timestamp() should not be zero")
+			}
+
+			// 测试错误接口
+			if err.Error() == "" {
+				t.Error("Error() should not be empty")
+			}
+
+			// 测试 Unwrap 方法
+			if err.Unwrap() != nil {
+				t.Error("Unwrap() should return nil for basic errors")
+			}
+		})
+	}
+}
+
 // TestParameterValidationError 测试参数验证错误（返回标准 error 接口）
 func TestParameterValidationError(t *testing.T) {
 	err := ParameterValidationError()
@@ -249,8 +339,8 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 		wantMetadata map[string]any
 	}{
 		{
-			name:    "UnAuthorizedErrorWithMetadata",
-			errFunc: UnAuthorizedErrorWithMetadata,
+			name:    "UnAuthorizedErrorWithMeta",
+			errFunc: UnAuthorizedErrorWithMeta,
 			metadata: map[string]any{
 				"user_id":    "user123",
 				"token_type": "bearer",
@@ -268,8 +358,8 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "ResourceConflictErrorWithMetadata",
-			errFunc: ResourceConflictErrorWithMetadata,
+			name:    "ResourceConflictErrorWithMeta",
+			errFunc: ResourceConflictErrorWithMeta,
 			metadata: map[string]any{
 				"resource_type": "user",
 				"resource_id":   "12345",
@@ -287,8 +377,8 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "ParameterValidationErrorWithMetadata",
-			errFunc: ParameterValidationErrorWithMetadata,
+			name:    "ParameterValidationErrorWithMeta",
+			errFunc: ParameterValidationErrorWithMeta,
 			metadata: map[string]any{
 				"field":  "email",
 				"value":  "invalid-email",
@@ -306,8 +396,8 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "TimeoutErrorWithMetadata",
-			errFunc: TimeoutErrorWithMetadata,
+			name:    "TimeoutErrorWithMeta",
+			errFunc: TimeoutErrorWithMeta,
 			metadata: map[string]any{
 				"operation": "database_query",
 				"timeout":   30 * time.Second,
@@ -325,8 +415,8 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "ForbiddenErrorWithMetadata",
-			errFunc: ForbiddenErrorWithMetadata,
+			name:    "ForbiddenErrorWithMeta",
+			errFunc: ForbiddenErrorWithMeta,
 			metadata: map[string]any{
 				"user_id":    "user123",
 				"resource":   "document_456",
@@ -346,8 +436,8 @@ func TestErrorWithMetadataFunctions(t *testing.T) {
 			},
 		},
 		{
-			name:    "InternalErrorWithMetadata",
-			errFunc: InternalErrorWithMetadata,
+			name:    "InternalErrorWithMeta",
+			errFunc: InternalErrorWithMeta,
 			metadata: map[string]any{
 				"component":   "database",
 				"operation":   "create_user",
@@ -631,6 +721,34 @@ func TestConcurrentErrorCreation(t *testing.T) {
 	for i := 0; i < concurrency; i++ {
 		go func(index int) {
 			err := InternalErrorf("concurrent error %d", index)
+
+			// 验证错误基本属性
+			if err.Code() != ErrTypeInternal.String() {
+				t.Errorf("Concurrent error Code() = %v, want %v", err.Code(), ErrTypeInternal.String())
+			}
+
+			if err.Type() != ErrTypeInternal {
+				t.Errorf("Concurrent error Type() = %v, want %v", err.Type(), ErrTypeInternal)
+			}
+
+			done <- true
+		}(i)
+	}
+
+	// 等待所有 goroutine 完成
+	for i := 0; i < concurrency; i++ {
+		<-done
+	}
+}
+
+// TestConcurrentErrorCreationNoStack 并发安全性测试，不带堆栈信息
+func TestConcurrentErrorCreationNoStack(t *testing.T) {
+	concurrency := 100
+	done := make(chan bool, concurrency)
+
+	for i := 0; i < concurrency; i++ {
+		go func(index int) {
+			err := InternalErrorfNoStack("concurrent error %d", index)
 
 			// 验证错误基本属性
 			if err.Code() != ErrTypeInternal.String() {
