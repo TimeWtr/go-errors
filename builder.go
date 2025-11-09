@@ -63,15 +63,14 @@ func (b *Builder) Build() Error {
 		b.message = b.code.Message
 	}
 
-	impl := &ErrorImpl{
-		code:       b.code.Code,
-		message:    b.message,
-		httpStatus: b.code.HttpStatus,
-		errType:    b.code.Type,
-		timestamp:  time.Now().UTC(),
-		cause:      b.cause,
-		metadata:   b.metadata,
-	}
+	impl := acquireError()
+	impl.code = b.code.Code
+	impl.message = b.message
+	impl.httpStatus = b.code.HttpStatus
+	impl.errType = b.code.Type
+	impl.timestamp = time.Now().UTC()
+	impl.cause = b.cause
+	impl.metadata = b.metadata
 
 	// 不开启快速模式，则记录堆栈信息
 	if !b.fastMode {
